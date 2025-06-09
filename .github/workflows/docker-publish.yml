@@ -1,12 +1,13 @@
 name: Build and Publish Unison
-
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_run:
+    workflows: ["Tag on VERSION bump"]
+    types:
+      - completed
 
 jobs:
   build-and-push:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,4 +33,3 @@ jobs:
           push: true
           tags: |
             ghcr.io/senseware/unison:${{ github.ref_name }}
-
