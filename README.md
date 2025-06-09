@@ -17,4 +17,28 @@ A minimal, statically-compiled [Unison](https://github.com/sensewarecom/unison) 
 ### Check version
 ```bash
 docker run --rm ghcr.io/youruser/unison -version
+```
 
+## Basic sync example
+
+Assuming a Unison daemon is running on host.example.com:
+```bash
+docker run --rm -v $(pwd):/data \
+    ghcr.io/youruser/unison \
+    /data socket://host.example.com:5000//data \
+    -auto -batch -repeat watch -terse
+```
+You can use this image as a sidecar container, for one-time syncs, or as a persistent service with a process manager.
+
+## Building locally
+
+```bash
+docker build -t unison:local .
+```
+## License
+
+MIT License. See LICENSE for details.
+
+## Credits
+
+Based on the official Unison File Synchronizer project. Built for use in container-native environments.
