@@ -4,7 +4,7 @@ A minimal, statically-compiled [Unison](https://github.com/sensewarecom/unison) 
 
 ## Features
 
-- Unison v2.48.4 built from source
+- Unison v2.53.7 built from source
 - Statically compiled with `STATIC=true` (no runtime OCaml dependencies)
 - Includes `unison-fsmonitor` for improved sync performance
 - Small image footprint (~20MB compressed)
@@ -24,7 +24,7 @@ docker run --rm ghcr.io/youruser/unison -version
 Assuming a Unison daemon is running on host.example.com:
 ```bash
 docker run --rm -v $(pwd):/data \
-    ghcr.io/youruser/unison \
+    ghcr.io/senseware/unison \
     /data socket://host.example.com:5000//data \
     -auto -batch -repeat watch -terse
 ```
