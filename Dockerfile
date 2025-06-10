@@ -47,10 +47,12 @@ ENV LOCAL_DATA=/data
 # Create sync directory
 RUN mkdir -p $LOCAL_DATA
 
-# Run Unison in server or client mode based on REMOTE_DATA env variable
+# Run Unison in server or client mode based on REMOTE_DATA env variable, echoing command
 ENTRYPOINT ["/bin/sh", "-c"]
 CMD ["if [ -n \"$REMOTE_DATA\" ]; then \
+    echo \"Executing: unison $LOCAL_DATA $REMOTE_DATA -auto -batch -repeat watch $UNISON_EXTRA\"; \
     unison $LOCAL_DATA $REMOTE_DATA -auto -batch -repeat watch $UNISON_EXTRA; \
 else \
+    echo \"Executing: unison -socket 5000 -auto -batch -repeat watch $UNISON_EXTRA\"; \
     unison -socket 5000 -auto -batch -repeat watch $UNISON_EXTRA; \
 fi"]
