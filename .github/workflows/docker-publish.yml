@@ -11,6 +11,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch full history to access tags
+
+      - name: Get latest tag
+        id: get_version
+        run: |
+          VERSION=$(git describe --tags --abbrev=0 --match="v*" | sed 's/^v//')
+          if [[ -z "$VERSION" ]]; then
+            echo "No valid tag found matching v*"
+            exit 1
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -32,5 +44,5 @@ jobs:
           file: Dockerfile
           push: true
           tags: |
-            ghcr.io/senseware/unison:${{ github.ref_name }}
+            ghcr.io/senseware/unison:v${{ steps.get_version.outputs.version }}
             ghcr.io/senseware/unison:latest
