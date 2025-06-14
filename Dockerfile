@@ -47,5 +47,3 @@ VOLUME /data
 WORKDIR /data
 ENTRYPOINT ["docker-entrypoint.sh"]
 EXPOSE 5000
-
-HEALTHCHECK --interval=30s --timeout=3s CMD pgrep unison || exit 1

@@ -3,10 +3,10 @@
 set -e
 
 # Resolve UNISONLOCALHOSTNAME using cascading fallback
-UNISONLOCALHOSTNAME="${UNISON_LOCAL_HOSTNAME:-${UNISONLOCALHOSTNAME:-${hostname:-}}}"
+export UNISONLOCALHOSTNAME="${UNISON_LOCAL_HOSTNAME:-${UNISONLOCALHOSTNAME:-${hostname:-}}}"
 
 # Set UNISON archive folder path
-UNISON="/data/.unison/${UNISONLOCALHOSTNAME}"
+export UNISON="/data/.unison/${UNISONLOCALHOSTNAME}"
 UNISON_EXTRA="-terse"
 
 # Ensure archive folder exists
