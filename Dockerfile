@@ -26,7 +26,8 @@ RUN mkdir -p /usr/src \
     && make \
     && cp src/unison src/unison-fsmonitor /usr/local/bin/ \
     && chmod +x /usr/local/bin/unison /usr/local/bin/unison-fsmonitor \
-    && rm -rf /tmp/unison.tar.gz /usr/src/unison-${UNISON_VERSION}
+    && rm -rf /tmp/unison.tar.gz /usr/src/unison-${UNISON_VERSION} && \
+    apk del build-base ocaml ocaml-findlib wget
 
 # 2. Create minimal runtime image
 FROM alpine:${ALPINE_VERSION}
@@ -37,22 +38,14 @@ RUN apk add --no-cache inotify-tools
 # Copy Unison binaries from builder
 COPY --from=builder /usr/local/bin/unison /usr/local/bin/unison
 COPY --from=builder /usr/local/bin/unison-fsmonitor /usr/local/bin/unison-fsmonitor
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh /usr/local/bin/unison /usr/local/bin/unison-fsmonitor
 
-# Expose Unison socket port for server mode
+# Sync directory
+RUN mkdir /data
+VOLUME /data
+WORKDIR /data
+ENTRYPOINT ["docker-entrypoint.sh"]
 EXPOSE 5000
 
-# Set default LOCAL_DATA environment variable
-ENV LOCAL_DATA=/data
-
-# Create sync directory
-RUN mkdir -p $LOCAL_DATA
-
-# Run Unison in server or client mode based on REMOTE_DATA env variable, echoing command
-ENTRYPOINT ["/bin/sh", "-c"]
-CMD ["if [ -n \"$REMOTE_DATA\" ]; then \
-    echo \"Executing: unison $LOCAL_DATA $REMOTE_DATA -auto -batch -repeat watch $UNISON_EXTRA\"; \
-    unison $LOCAL_DATA $REMOTE_DATA -auto -batch -repeat watch $UNISON_EXTRA; \
-else \
-    echo \"Executing: unison -socket 5000 -auto -batch -repeat watch $UNISON_EXTRA\"; \
-    unison -socket 5000 -auto -batch -repeat watch $UNISON_EXTRA; \
-fi"]
+HEALTHCHECK --interval=30s --timeout=3s CMD pgrep unison || exit 1
