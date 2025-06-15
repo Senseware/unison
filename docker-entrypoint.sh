@@ -14,8 +14,8 @@ mkdir -p "$UNISON"
 
 if [ -n "$REMOTE_DATA" ]; then
     # client
-    echo "Starting Unison Client: unison /data $REMOTE_DATA -auto -batch -repeat watch -ignore 'BelowPath .unison' -ignore 'Regex \.unison.*' $UNISON_EXTRA"
-    exec unison /data "$REMOTE_DATA" -auto -batch -repeat watch -ignore "BelowPath .unison" -ignore "Regex \.unison.*" $UNISON_EXTRA
+    echo "Starting Unison Client: unison /data $REMOTE_DATA -auto -batch -repeat watch -ignore 'BelowPath /data/.unison' -ignore 'Regex \.unison.*' $UNISON_EXTRA"
+    exec unison /data "$REMOTE_DATA" -auto -batch -repeat watch -ignore "BelowPath /data/.unison" -ignore "Regex \.unison.*" $UNISON_EXTRA
 else
     # server
     echo "Starting Unison Server: unison -socket 5000 -auto -batch -repeat watch $UNISON_EXTRA"
