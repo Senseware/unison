@@ -1,57 +1,81 @@
 # Unison Docker Image
 
-A minimal Alpine-based [Unison](https://github.com/bcpierce00/unison) Docker image with inotify support. Ideal for production, CI/CD pipelines, or sync-based service containers.
+A minimal Alpine-based [Unison](https://github.com/bcpierce00/unison) Docker image with **inotify (fsmonitor)** support. Ideal for real-time file synchronization in production, CI/CD pipelines, Docker Swarm, or Kubernetes.
 
 ## Features
 
-- Unison v2.53.7 built from source
-- Includes `unison-fsmonitor` for inotify-based sync
-- Small image footprint (~20MB compressed)
-- Based on Alpine 3.22
-- No build dependencies in final image
-- Supports server and client modes
-- Suitable for Docker Swarm, Kubernetes, CI, or standalone use
+- Unison **v2.53.7**, compiled from source
+- Includes `unison-fsmonitor` for efficient inotify-based sync
+- Minimal image size (~20MB compressed)
+- Based on Alpine Linux **3.22**
+- Clean runtime image (no build dependencies)
+- Automatically switches between **client** and **server** mode
+- Stores Unison archive in `/data/.unison/<LOCAL_HOSTNAME>`
 
 ## Usage
 
+### Image Location
+
+The image is published at:
+
+```
+ghcr.io/senseware/unison
+```
+
 ### Environment Variables
-- `LOCAL_DATA`: Local directory to sync (default: `/data`)
-- `REMOTE_DATA`: Remote Unison server (e.g., `socket://host.example.com:5000//data`)
-- `UNISON_EXTRA`: Additional Unison flags (e.g., `-ignore 'Name *.tmp'`)
+
+| Variable              | Description                                                                 |
+|-----------------------|-----------------------------------------------------------------------------|
+| `REMOTE_DATA`         | Remote Unison endpoint (`socket://host:5000//data`). Triggers client mode.  |
+| `REMOTE_HOSTNAME`     | Optional shorthand for `REMOTE_DATA`. Generates `REMOTE_DATA` if not set.   |
+| `LOCAL_HOSTNAME`      | **Required**. Must be set to the hostname of the container.                 |
 
 ### Check Version
+
 ```bash
-docker run --rm ghcr.io/youruser/unison -version
+docker run --rm ghcr.io/senseware/unison -version
 ```
 
 ### Server Mode
-Run Unison as a server, listening on port 5000:
+
+Start Unison as a server, listening on TCP port 5000:
+
 ```bash
-docker run --rm -v $(pwd):/data -p 5000:5000 ghcr.io/youruser/unison
+docker run --rm -v $(pwd):/data -p 5000:5000 \
+  -e LOCAL_HOSTNAME=$(hostname) \
+  ghcr.io/senseware/unison
 ```
 
 ### Client Mode
+
 Sync local `/data` with a remote Unison server:
+
 ```bash
-docker run --rm -v $(pwd):/data ghcr.io/youruser/unison \
-    -e REMOTE_DATA=socket://host.example.com:5000//data
+docker run --rm -v $(pwd):/data \
+  -e LOCAL_HOSTNAME=$(hostname) \
+  -e REMOTE_DATA=socket://host.example.com:5000//data \
+  ghcr.io/senseware/unison
 ```
 
-### Example with Extra Flags
-Ignore temporary files during sync:
+Or using shorthand with `REMOTE_HOSTNAME`:
+
 ```bash
-docker run --rm -v $(pwd):/data ghcr.io/youruser/unison \
-    -e REMOTE_DATA=socket://host.example.com:5000//data \
-    -e UNISON_EXTRA="-ignore 'Name *.tmp'"
+docker run --rm -v $(pwd):/data \
+  -e LOCAL_HOSTNAME=$(hostname) \
+  -e REMOTE_HOSTNAME=host.example.com \
+  ghcr.io/senseware/unison
 ```
 
 ## Building Locally
+
 ```bash
 docker build -t unison:local .
 ```
 
 ## License
-MIT License. See LICENSE for details.
 
-## Credits
-Based on the official Unison File Synchronizer project. Built for container-native environments.
+MIT License. See `LICENSE` file for details.
+
+## Source
+
+Source code available at: [github.com/Senseware/unison](https://github.com/Senseware/unison)
