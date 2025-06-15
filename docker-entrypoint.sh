@@ -18,7 +18,7 @@ fi
 if [ -n "$REMOTE_DATA" ]; then
     # Client
     echo "Starting Unison Client"
-    exec unison /data "$REMOTE_DATA" -auto -batch -repeat watch -terse \
+    exec unison /data "$REMOTE_DATA" -auto -batch -repeat watch -terse -prefer newer \
       -ignore "BelowPath .unison" \
       -ignore "Regex \.unison.*"
 else
